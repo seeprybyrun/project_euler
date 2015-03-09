@@ -1,0 +1,25 @@
+import time
+import math
+import numbertheory as nt
+
+def sameDigits(x,y):
+    xDigits = sorted(str(x))
+    yDigits = sorted(str(y))
+    return xDigits == yDigits
+
+##print sameDigits(1,2)
+##print sameDigits(10,100)
+##print sameDigits(1234,4321)
+
+t0 = time.clock()
+
+primes = nt.allPrimesLessThan(10000)
+
+for p in primes:
+    for d in range(2,(10000-p)/2,2):
+        if nt.isPrime(p+d) and nt.isPrime(p+2*d) and sameDigits(p,p+d) and sameDigits(p,p+2*d):
+            print "{0},{1},{2}: {3}".format(p,p+d,p+2*d,d)
+            answer = str(p)+str(p+d)+str(p+2*d)
+
+print 'answer: {0}'.format(answer)
+print 'milliseconds elapsed: {0}'.format(1000*(time.clock()-t0))
