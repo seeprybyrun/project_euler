@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class Problem0023 {
+public class problem0023 {
 	public static void main(String[] args) {
 		final int UPPER_BOUND = 28123;
 		List<Integer> abundants = allAbundantNumbersLessThan(UPPER_BOUND);

@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class Problem0021 {
+public class problem0021 {
 	public static void main(String[] args) {
 //		List<Integer> divs = divisors(220);
 //		for( int i = 0; i < divs.size(); i++ ) {

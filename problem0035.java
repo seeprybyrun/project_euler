@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class Problem0035 {
+public class problem0035 {
 	public static List<Integer> primes = null;
 	
 	public static void main(String[] args) {

@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class Problem0027 {
+public class problem0027 {
 	public static void main(String[] args) {
 		final int UPPER_BOUND = 1000;
 		final int LOWER_BOUND = -UPPER_BOUND;

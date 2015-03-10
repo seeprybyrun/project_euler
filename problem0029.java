@@ -3,7 +3,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class Problem0029 {
+public class problem0029 {
 	public static List<Integer> primes = null;
 	
 	public static void main(String[] args) {
