@@ -1,3 +1,10 @@
+# The cube, 41063625 (345^3), can be permuted to produce two other cubes:
+# 56623104 (384^3) and 66430125 (405^3). In fact, 41063625 is the smallest
+# cube which has exactly three permutations of its digits which are also cube.
+# 
+# Find the smallest cube for which exactly five permutations of its digits are
+# cube.
+
 import time
 import math
 import numbertheory as nt
@@ -13,8 +20,10 @@ CLIQUELENGTH = 5
 numDigits = 1
 
 # very fast solution that throws cubes into bins according to their digital
-# representation, sorted; then checks to see if any bins have exactly 5 elements
+# representation, sorted; then checks to see if any bins have exactly 5
+# elements
 # (check and reset the bins when the number of digits in the cubes increases)
+# adapted from Project Euler forums answers
 while True:
     lowerBound = int(ceil(10**((numDigits-1)/3.0)))
     upperBound = int(ceil(10**(numDigits/3.0)))
@@ -35,8 +44,8 @@ while True:
         break
     numDigits += 1
 
-# my original solution below: way too much structure, since I didn't realize that
-# the connected components of the graph were themselves cliques :-o
+# my original solution below: way too much structure, since I didn't realize
+# that the connected components of the graph were themselves cliques :-o
 # lots of optimizations needed to make it run within 60 seconds: e.g.,
 # only checking cubes that have the same number of digits as a given cube
 

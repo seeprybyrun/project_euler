@@ -1,7 +1,13 @@
-# max digits will be 7, since the largest amount a digit can contribute to a sum is 9!, and 7*9! has 7 digits,
-# while n*9! has fewer than n digits for n > 7
-#
-# indeed, max possible sum is 7*9! = 2540160
+# 145 is a curious number, as 1! + 4! + 5! = 1 + 24 + 120 = 145.
+# 
+# Find the sum of all numbers which are equal to the sum of the factorial
+# of their digits.
+# 
+# Note: as 1! = 1 and 2! = 2 are not sums they are not included.
+
+# max digits will be 7, since the largest amount a digit can contribute to
+# a sum is 9!, and 7*9! has 7 digits, while n*9! has fewer than n digits
+# for n > 7. indeed, max possible sum is 7*9! = 2540160
 
 def extract_digits(n):
     return [int(d) for d in str(n)]
