@@ -33,56 +33,41 @@ answer = -1
 # for denominations of all amounts from 1 up to n
 
 # memoization to improve performance
-memo = {}
 
-def makeChange(target,denoms):
-    # base cases
-    if target == 0:
-        return 1
-    elif target < 0:
-        return 0
-    elif len(denoms) == 0:
-        return 0
+def makeChangeTable(maxAmount,denoms):
+    # initialize table
+    D = len(denoms)+1 # implicit null set inserted at beginning
+    numWays = [ [0 for m in range(D)] for i in range(maxAmount+1) ]
+    numWays[0] = [1 for m in range(D)]
 
-    m = max(denoms)
-    index = '{},{}'.format(target,m)
-    if index in memo:
-        return memo[index]
-
-    # ways of making change for target using coins 1 through m is
+    # ways of making change for target using coins 0 through m is
     # equal to the number of ways of making change using only coins
-    # 1 through m-1 PLUS the number of ways of making change for
-    # target-m using coins 1 through m
-    numWays1 = 0
-    if '{},{}'.format(target,m-1) in memo:
-        numWays1 = memo['{},{}'.format(target,m-1)]
-    else:
-        print 'recursive call: {},{}'.format(target,m-1)
-        numWays1 = makeChange(target,denoms[:-1])
+    # 0 through m-1 PLUS the number of ways of making change for
+    # target-denoms[m] using coins 1 through m
+    for m in range(1,D):
+        d = denoms[m-1] # the minus 1 is to adjust for the previous implicit
+                        # null set
+        for i in range(1,maxAmount+1):
+            numWays1 = numWays[i][m-1]
+            numWays2 = 0 if i-d < 0 else numWays[i-d][m]
+            numWays[i][m] = numWays1 + numWays2
 
-    numWays2 = 0
-    if '{},{}'.format(target-m,m) in memo:
-        numWays2 = memo['{},{}'.format(target-m,m)]
-    else:
-        print 'recursive call: {},{}'.format(target-m,m)
-        numWays2 = makeChange(target-m,denoms)
-        
-    memo[index] = numWays1 + numWays2
-    return memo[index]
+    return numWays
 
-# increment target until we beat the desired amount
-target = 0
-denoms = []
-numWays = 1
-while numWays % 10**6 != 0:
-    target += 1
-    denoms += [target]
-    # print denoms
-    numWays = makeChange(target,denoms)
-    if target % 100 == 0: print target
-    print 'numWays({}) = {}'.format(target,numWays)
+maxAmount = 5
+denoms = range(1,maxAmount+1)
+for row in makeChangeTable(maxAmount,denoms):
+    print row
 
-answer = target
+### increment target by powers of 2 until we find one divisible by 10**6
+##maxAmount = 100
+##numWays = [[]]
+##while True:
+##    denoms = range(1,maxAmount+1)
+##    numWays = makeChangeTable(maxAmount,denoms)
+##    for i in range(maxAmount/2+1,maxAmount+1):
+##        if numWays[i][i]
 
-print 'answer: {}'.format(answer) # 71
-print 'seconds elapsed: {}'.format(time.clock()-t0) # ~9.6ms
+
+print 'answer: {}'.format(answer) # 
+print 'seconds elapsed: {}'.format(time.clock()-t0) # 
