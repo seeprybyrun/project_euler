@@ -32,46 +32,35 @@ answer = -1
 # dynamic programming: this is essentially the making-change problem
 # for denominations of all amounts from 1 up to n
 
-# mod out by the desired target to speed up?
-def makeChangeTableMod(maxAmount,denoms,modulus):
-    # initialize table
-    D = len(denoms)+1 # implicit null set inserted at beginning
-    numWays = [ [0 for m in range(D)] for i in range(maxAmount+1) ]
-    numWays[0] = [1 for m in range(D)]
+maxAmount = 1
+numWays = [ [1],[0,1] ]
+modulus = 10**6
 
-    # ways of making change for target using coins 0 through m is
-    # equal to the number of ways of making change using only coins
-    # 0 through m-1 PLUS the number of ways of making change for
-    # target-denoms[m] using coins 1 through m
-    for m in range(1,D):
-        d = denoms[m-1] # the minus 1 is to adjust for the previous implicit
-                        # null set
-        for i in range(1,maxAmount+1):
-            numWays1 = numWays[i][m-1]
-            numWays2 = 0 if i-d < 0 else numWays[i-d][m]
-            numWays[i][m] = (numWays1 + numWays2) % modulus
-
-    return numWays
-
-##maxAmount = 5
-##denoms = range(1,maxAmount+1)
-##for row in makeChangeTable(maxAmount,denoms):
-##    print row
-
-# increment target by powers of 2 until we find one divisible by 10**6
-maxAmount = 2
-TARGET = 10**5
 while answer < 0:
-    print 'making new table: maxAmount = {}'.format(maxAmount)
-    numWays = makeChangeTableMod(maxAmount,range(1,maxAmount+1),TARGET)
+    maxAmount += 1
+    if maxAmount % 100 == 0:
+        print maxAmount 
+##    # fill in new column
+##    for i in range(maxAmount):
+##        numWays[i] += [numWays[i][-1]]
+
+    # make new row
+    numWays.append([0] * (maxAmount+1))
+    
+    # ways of making change for target using coins 1 through m is
+    # equal to the number of ways of making change using only coins
+    # 1 through m-1 PLUS the number of ways of making change for
+    # target-denoms[m] using coins 1 through m
+    for m in range(1,maxAmount+1):
+        numWays1 = numWays[maxAmount][m-1]
+        v = maxAmount-m
+        numWays2 = numWays[v][m] if v > m else numWays[v][v]
+        numWays[maxAmount][m] = (numWays1 + numWays2) % modulus
+    if numWays[maxAmount][maxAmount] == 0:
+        answer = maxAmount
+
 ##    for row in numWays:
 ##        print row
-    for i in range(maxAmount/2,maxAmount+1):
-        if numWays[i][i] == 0:
-            answer = i
-            print 'numWays[{0}][{0}] = {1}'.format(i,numWays[i][i])
-            break
-    maxAmount *= 2
 
 print 'answer: {}'.format(answer) # 
 print 'seconds elapsed: {}'.format(time.clock()-t0) # 
