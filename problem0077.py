@@ -56,29 +56,22 @@ def makeChange(target,denoms):
 
     return memo[index]
 
-beatThis = 4
+nt.allPrimesLessThan2(100) # workaround to initialize prime list
+                           # (otherwise there is a bug)
 
-# increase target by powers of 2 until we beat the desired amount
-target = 2
+beatThis = 5000
+
+# increment target until we beat the desired amount
+target = 10
 numWays = 0
 while numWays <= beatThis:
-    target *= 2
+    target += 1
     denoms = nt.allPrimesLessThan2(target)
+    # print denoms
     numWays = makeChange(target,denoms)
+    # print 'numWays({}) = {}'.format(target,numWays)
 
-# then do binary search to find the right answer
-maxTarget = target
-minTarget = target/2
-while minTarget < maxTarget:
-    target = (minTarget+maxTarget)/2
-    denoms = nt.allPrimesLessThan2(target)
-    numWays = makeChange(target,denoms)
-    if numWays <= beatThis: # not big enough
-        minTarget = target+1
-    else: # too big (maybe)
-        maxTarget = target
+answer = target
 
-answer = maxTarget
-
-print 'answer: {}'.format(answer) # 
-print 'seconds elapsed: {}'.format(time.clock()-t0) # 
+print 'answer: {}'.format(answer) # 71
+print 'seconds elapsed: {}'.format(time.clock()-t0) # ~9.6ms
