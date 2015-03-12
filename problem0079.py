@@ -26,30 +26,45 @@ def prod(iterable):
 factorial = [1,1,2,6,24,120,720,5040,40320,362880]
 
 t0 = time.clock()
-answer = -1
+answer = None
 
-# idea: try making a regex out of each password piece, then run
-# all integers through the regexes until a match is found
+# idea: to speed up the search, take permutations of '10236789' + extraDigits
+# as needed, discarding any beginning with '0'
+
+# send all perms of '10236789' through regex 1, dump those that don't match
+# then send the survivors through regex 2, etc
+# if no survivors after a regex, try extraDigits = '0', then '1', then '2', ...
 
 f = open('data/p079_keylog.txt','r')
-regexes = [re.compile('.*'+'.*'.join(str(line))+'.*') for line in f.readlines()]
+regexStrings = ['.*'+'.*'.join(line.strip())+'.*' for line in f.readlines()]
+regexes = [re.compile(s) for s in regexStrings]
 
-answer = 10236789 # bottom of search space given that 4,5 not in keylogger
-found = False
-numChecked = 0
-while not found:
-    answer += 1
-    passcode = str(answer)
-    if set(passcode) != set('01236789'): # ensures that we only consider
-        continue                         # passcodes with the requisite digits
-    found = True
-    for regex in regexes:
-        if not regex.match(passcode):
-            found = False
+baseDigits = '01236789'
+numExtraDigits = 0
+
+while not answer:
+    for x in it.combinations('01236789',numExtraDigits):
+        digitStr = baseDigits + ''.join(map(str,x))
+##        print digitStr
+        # skip any strings that start with '0'
+        candidates = set([''.join(map(str,y)) for y in it.permutations(digitStr) if y[0] != '0'])
+##        print -1,len(candidates)
+        for i,r in enumerate(regexes):
+            survivors = set()
+            for passcode in candidates:
+                if r.match(passcode):
+                    survivors.add(passcode)
+            candidates = survivors
+##            print i,len(candidates)
+            if len(candidates) == 0:
+                break
+        if len(candidates) > 0:
+            if len(candidates) == 1:
+                answer = list(candidates)[0]
+            else:
+                answer = list(candidates)
             break
-    numChecked += 1
-    if numChecked % 1000 == 0:
-        print numChecked,passcode
+    numExtraDigits += 1
 
-print 'answer: {}'.format(answer) # 
-print 'seconds elapsed: {}'.format(time.clock()-t0) # 
+print 'answer: {}'.format(answer) # 73162890
+print 'seconds elapsed: {}'.format(time.clock()-t0) # ~0.134s
