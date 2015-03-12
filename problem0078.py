@@ -32,9 +32,8 @@ answer = -1
 # dynamic programming: this is essentially the making-change problem
 # for denominations of all amounts from 1 up to n
 
-# memoization to improve performance
-
-def makeChangeTable(maxAmount,denoms):
+# mod out by the desired target to speed up?
+def makeChangeTableMod(maxAmount,denoms,modulus):
     # initialize table
     D = len(denoms)+1 # implicit null set inserted at beginning
     numWays = [ [0 for m in range(D)] for i in range(maxAmount+1) ]
@@ -50,24 +49,29 @@ def makeChangeTable(maxAmount,denoms):
         for i in range(1,maxAmount+1):
             numWays1 = numWays[i][m-1]
             numWays2 = 0 if i-d < 0 else numWays[i-d][m]
-            numWays[i][m] = numWays1 + numWays2
+            numWays[i][m] = (numWays1 + numWays2) % modulus
 
     return numWays
 
-maxAmount = 5
-denoms = range(1,maxAmount+1)
-for row in makeChangeTable(maxAmount,denoms):
-    print row
+##maxAmount = 5
+##denoms = range(1,maxAmount+1)
+##for row in makeChangeTable(maxAmount,denoms):
+##    print row
 
-### increment target by powers of 2 until we find one divisible by 10**6
-##maxAmount = 100
-##numWays = [[]]
-##while True:
-##    denoms = range(1,maxAmount+1)
-##    numWays = makeChangeTable(maxAmount,denoms)
-##    for i in range(maxAmount/2+1,maxAmount+1):
-##        if numWays[i][i]
-
+# increment target by powers of 2 until we find one divisible by 10**6
+maxAmount = 2
+TARGET = 10**5
+while answer < 0:
+    print 'making new table: maxAmount = {}'.format(maxAmount)
+    numWays = makeChangeTableMod(maxAmount,range(1,maxAmount+1),TARGET)
+##    for row in numWays:
+##        print row
+    for i in range(maxAmount/2,maxAmount+1):
+        if numWays[i][i] == 0:
+            answer = i
+            print 'numWays[{0}][{0}] = {1}'.format(i,numWays[i][i])
+            break
+    maxAmount *= 2
 
 print 'answer: {}'.format(answer) # 
 print 'seconds elapsed: {}'.format(time.clock()-t0) # 
