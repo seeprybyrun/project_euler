@@ -29,38 +29,32 @@ factorial = [1,1,2,6,24,120,720,5040,40320,362880]
 t0 = time.clock()
 answer = -1
 
-# dynamic programming: this is essentially the making-change problem
-# for denominations of all amounts from 1 up to n
+MODULUS = 10**6
 
-maxAmount = 1
-numWays = [ [1],[0,1] ]
-modulus = 10**6
+# let's try Euler's recurrence:
+# p(k) = \sum_{m \in S} (-1)^m p(k-P_m),
+# where S = (1,-1,2,-2,3,-3,...), P_m = m(3m-1)/2 (generalized pentagonal
+# numbers), and taking p(0) = 1 and p(x) = 0 for x < 0
+partitions = [1]
+k = 0
 
-while answer < 0:
-    maxAmount += 1
-    if maxAmount % 100 == 0:
-        print maxAmount 
-##    # fill in new column
-##    for i in range(maxAmount):
-##        numWays[i] += [numWays[i][-1]]
+while partitions[k] % MODULUS != 0:
+    k += 1
+    m = 1
+    Pm = 1
+    partitions.append(0)
+    while k-Pm >= 0:
+        sign = 2*(m % 2)-1 # 1 if m is odd, -1 if m is even
+        partitions[k] += sign * partitions[k-Pm] # the recurrence
+        partitions[k] %= MODULUS # since we're only interested in the first 
+                                 # one divisible by MODULUS, can use this
+                                 # to keep the size of our numbers controlled
+        m *= -1
+        m += 0 if m < 0 else 1 # increment if we just made m positive
+                               # this gives us the sequence (1,-1,2,-2,...)
+        Pm = m*(3*m-1)/2 # generalized pentagonal number
 
-    # make new row
-    numWays.append([0] * (maxAmount+1))
-    
-    # ways of making change for target using coins 1 through m is
-    # equal to the number of ways of making change using only coins
-    # 1 through m-1 PLUS the number of ways of making change for
-    # target-denoms[m] using coins 1 through m
-    for m in range(1,maxAmount+1):
-        numWays1 = numWays[maxAmount][m-1]
-        v = maxAmount-m
-        numWays2 = numWays[v][m] if v > m else numWays[v][v]
-        numWays[maxAmount][m] = (numWays1 + numWays2) % modulus
-    if numWays[maxAmount][maxAmount] == 0:
-        answer = maxAmount
+answer = k
 
-##    for row in numWays:
-##        print row
-
-print 'answer: {}'.format(answer) # 
-print 'seconds elapsed: {}'.format(time.clock()-t0) # 
+print 'answer: {}'.format(answer) # 55374
+print 'seconds elapsed: {}'.format(time.clock()-t0) # ~20.2s
