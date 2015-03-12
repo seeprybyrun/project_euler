@@ -29,16 +29,16 @@ answer = None
 
 memo = {}
 
-def convergentOfSqrt2Times10ToThe198(k):
+def convergentOfSqrt2(k):
     """Returns (a,b), where a/b is the kth convergent of sqrt(2), and a and b are coprime.
 The 1st iteration is 3/2."""
     if k in memo:
         return memo[k]
     
     if k == 1:
-        memo[1] = (3*(10**99),2)
+        memo[1] = (3,2)
     else:
-        a,b = convergentOfSqrt2Times10ToThe198(k-1)
+        a,b = convergentOfSqrt2(k-1)
         # add one, invert, add one
         a += b
         a,b = b,a
@@ -47,8 +47,22 @@ The 1st iteration is 3/2."""
 
     return memo[k]
 
-a,b = convergentOfSqrt2Times10ToThe198(2)
-print a,b,1.0*a/b
+def convergentOfSqrtTimes10ToThe198(k):
+    a,b = convergentOfSqrt2(k)
+    a *= 10**99
+    return a,b
+
+k = 1
+prevQuotient = int(floor(sqrt(2)))
+a,b = convergentOfSqrt2Times10ToThe198(k)
+thisQuotient = a/b
+print thisQuotient,thisQuotient-prevQuotient
+while abs(prevQuotient - thisQuotient) > 0:
+    print thisQuotient,thisQuotient-prevQuotient
+    k += 1
+    a,b = convergentOfSqrt2Times10ToThe198(k)
+    prevQuotient,thisQuotient = thisQuotient,a/b
+answer = sum(map(int,str(thisQuotient)))
 
 print 'answer: {}'.format(answer) # 
 print 'seconds elapsed: {}'.format(time.clock()-t0) # ~
