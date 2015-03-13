@@ -68,7 +68,7 @@ print 'reading file'
 ##          [537,699,497,121,956],
 ##          [805,732,524, 37,331]]
 
-f = open('data/p081_matrix.txt','r')
+f = open('data/p083_matrix.txt','r')
 matrix = [ map(int,line.strip().split(',')) for line in f.readlines() ]
 f.close()
 
