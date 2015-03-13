@@ -66,8 +66,11 @@ answer = 0
 ##          [537,699,497,121,956],
 ##          [805,732,524, 37,331]]
 
+print 'reading file'
+
 f = open('data/p081_matrix.txt','r')
 matrix = [ map(int,line.strip().split(',')) for line in f.readlines() ]
+f.close()
 
 # idea: do Dykstra's algorithm on a digraph
 # edge weight = value of the cell you enter
@@ -75,11 +78,15 @@ matrix = [ map(int,line.strip().split(',')) for line in f.readlines() ]
 # sink = bottom right
 # need to add value of source cell in order to account for no edges entering it
 
+print 'building vertex list'
+
 # make vertex list
 M = len(matrix)
 N = len(matrix[0])
 assert set([len(row) for row in matrix]) == set([N])
 vertices = [ v for v in it.product(range(M),range(N)) ]
+
+print 'building adjacency list'
 
 # make adjacency list
 # for all cells in last column nor last row...
@@ -93,16 +100,20 @@ for j in range(N-1):
 # for bottom-right cell...
 neighbors[(M-1,N-1)] = []
 
+print 'building weight function'
+
 # weight of an edge is the value of the cell being entered
 # nonexistent edges get a weight of infinity
-weight = { u : { v : matrix[v[0]][v[1]] if v in neighbors[u] else inf for v in vertices } for u in vertices }
+weight = { u : { v : matrix[v[0]][v[1]] for v in neighbors[u] } for u in vertices }
 
 # source is top-left cell, sink is bottom-right
 source = (0,0)
 sink = (M-1,N-1)
 
+print 'computing shortest path'
+
 dist,prev = dijkstra(vertices,neighbors,weight,source)
 answer = matrix[source[0]][source[1]] + dist[sink]
         
 print 'answer: {}'.format(answer) # 427337
-print 'seconds elapsed: {}'.format(time.clock()-t0) # ~25.9s
+print 'seconds elapsed: {}'.format(time.clock()-t0) # ~5.61s
