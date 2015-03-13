@@ -25,44 +25,80 @@ def prod(iterable):
 factorial = [1,1,2,6,24,120,720,5040,40320,362880]
 
 t0 = time.clock()
-answer = None
+answer = 0
 
-memo = {}
+MAX = 100
+memo = [[(int(floor(sqrt(n))),1,0,1,0)] for n in range(MAX+1)]
 
-def convergentOfSqrt2(k):
-    """Returns (a,b), where a/b is the kth convergent of sqrt(2), and a and b are coprime.
-The 1st iteration is 3/2."""
-    if k in memo:
-        return memo[k]
+def convergentOfSqrt(n,k):
+    """Returns (a,b), where a/b is the kth convergent of the continued
+fraction expansion of sqrt(n)."""
+    if isSquare(n) and k > 0:
+        return int(floor(sqrt(n))),1
     
-    if k == 1:
-        memo[1] = (3,2)
-    else:
-        a,b = convergentOfSqrt2(k-1)
-        # add one, invert, add one
-        a += b
-        a,b = b,a
-        a += b
-        memo[k] = (a,b)
+    if len(memo[n]) > k and memo[n][k]:
+        return memo[n][k][-2],memo[n][k][-1]
 
-    return memo[k]
+    # increase the size of the list in memo to be long enough
+    if len(memo[n]) <= k:
+        memo[n] += [None] * (k-len(memo[n])+1)
+        assert(len(memo[n])) == k+1
 
-def convergentOfSqrtTimes10ToThe198(k):
-    a,b = convergentOfSqrt2(k)
+    if k > 0: # k == 0 is already covered
+        for i in range(k):
+            if not memo[n][i]:
+                convergentOfSqrt(n,i)
+        a,prevDenom,b,hPrev1,kPrev1 = memo[n][k-1]
+        if k == 1:
+            a = int(floor(sqrt(n)))
+            denom = 1
+            b = int(floor(sqrt(n)))
+            hPrev2,kPrev2 = (0,1)
+        else:
+            hPrev2,kPrev2 = convergentOfSqrt(n,k-2)
+            denom = (n - a**2)/prevDenom
+            numer = sqrt(n) + a
+            b = 0
+            while numer/denom > 1:
+                b += 1
+                a -= denom
+                numer = sqrt(n) + a
+            a *= -1
+        memo[n][k] = (a,denom,b,b*hPrev1+hPrev2,b*kPrev1+kPrev2)
+
+    return memo[n][k][-2],memo[n][k][-1]
+
+def isSquare(n):
+    sqrtN = int(floor(sqrt(n)))
+    if sqrtN**2 == n:
+        return True
+    return False
+
+def convergentOfSqrtTimes10ToThe198(n,k):
+    a,b = convergentOfSqrt(n,k)
     a *= 10**99
     return a,b
 
-k = 1
-prevQuotient = int(floor(sqrt(2)))
-a,b = convergentOfSqrt2Times10ToThe198(k)
-thisQuotient = a/b
-print thisQuotient,thisQuotient-prevQuotient
-while abs(prevQuotient - thisQuotient) > 0:
-    print thisQuotient,thisQuotient-prevQuotient
-    k += 1
-    a,b = convergentOfSqrt2Times10ToThe198(k)
-    prevQuotient,thisQuotient = thisQuotient,a/b
-answer = sum(map(int,str(thisQuotient)))
+##for k in range(1,10):
+##    a,b = convergentOfSqrt(5,k)
+##    print 1.*a/b
 
-print 'answer: {}'.format(answer) # 
-print 'seconds elapsed: {}'.format(time.clock()-t0) # ~
+assert isSquare(1)
+
+for n in range(1,101):
+    if isSquare(n): continue
+    #print n
+    k = 1
+    prevQuotient = int(floor(sqrt(n)))
+    a,b = convergentOfSqrtTimes10ToThe198(n,k)
+    thisQuotient = a/b
+    #print thisQuotient,thisQuotient-prevQuotient
+    while abs(prevQuotient - thisQuotient) > 0:
+        #print thisQuotient,thisQuotient-prevQuotient
+        k += 1
+        a,b = convergentOfSqrtTimes10ToThe198(n,k)
+        prevQuotient,thisQuotient = thisQuotient,a/b
+    answer += sum(map(int,str(thisQuotient)))
+
+print 'answer: {}'.format(answer) # 40886
+print 'seconds elapsed: {}'.format(time.clock()-t0) # ~0.141s
