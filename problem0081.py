@@ -103,7 +103,6 @@ neighbors[(M-1,N-1)] = []
 print 'building weight function'
 
 # weight of an edge is the value of the cell being entered
-# nonexistent edges get a weight of infinity
 weight = { u : { v : matrix[v[0]][v[1]] for v in neighbors[u] } for u in vertices }
 
 # source is top-left cell, sink is bottom-right
