@@ -72,11 +72,11 @@ for delta in sorted(range(0,START_SIGMA)+range(0,-START_SIGMA,-1),key=abs):
     sigma = START_SIGMA + delta
     for m in range(sigma/2,-1,-1): # since rectangleCount(m,n) == rectangleCount(n,m),
         n = sigma-m              # no need to consider when m > n
-        r = m*n*(m*n + m + n + 1) - 3*m*n*(m+1)*(n+1)/4
+        r = m*n*(m+1)*(n+1)/4
         if abs(r-TARGET) < abs(closestToTarget-TARGET):
 #            print m,n,r
             closestToTarget = r
             answer = m*n                                  
 
 print 'answer: {}'.format(answer) # 2772
-print 'seconds elapsed: {}'.format(time.clock()-t0) # ~15.1ms
+print 'seconds elapsed: {}'.format(time.clock()-t0) # ~9.51ms
