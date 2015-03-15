@@ -54,7 +54,8 @@ def isPrimeNoSieve(n):
             return False
     return True
 
-def eratoSieve(n):
+def eratoSieve(m):
+    n = int(floor(m))
     print 'computing sieve of Eratosthenes up through {}'.format(n)
     checked = [False]*(n+1)
     prime = [False]*(n+1)
@@ -71,7 +72,8 @@ def eratoSieve(n):
     memo['maxPrime'] = n
     memo['isPrime'] = prime
 
-def eratoSieve2(n):
+def eratoSieve2(m):
+    n = int(floor(m))
     print 'computing sieve of Eratosthenes up through {}'.format(n)
     prime = [True]*(n+1)
     rootN = int(floor(sqrt(n)))
@@ -83,7 +85,9 @@ def eratoSieve2(n):
     memo['maxPrime'] = n
     memo['isPrime'] = prime
 
-def allPrimesLessThan(n):
+def allPrimesLessThan(m):
+    n = int(floor(m))
+    
     if 'maxPrime' not in memo or memo['maxPrime'] <= n:
         eratoSieve(n)
         
@@ -98,7 +102,9 @@ def allPrimesLessThan(n):
     memo['primes'] = primes
     return primes
 
-def allPrimesLessThan2(n):
+def allPrimesLessThan2(m):
+    n = int(floor(m))
+    
     if 'maxPrime' not in memo or memo['maxPrime'] <= n:
         eratoSieve2(n)
         
