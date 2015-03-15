@@ -169,4 +169,4 @@ for line in f.readlines():
     answer += len(r1) - len(r2)
 
 print 'answer: {}'.format(answer) # 743
-print 'seconds elapsed: {}'.format(time.clock()-t0) # ~
+print 'seconds elapsed: {}'.format(time.clock()-t0) # ~10.2ms
