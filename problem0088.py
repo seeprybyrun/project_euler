@@ -72,16 +72,6 @@ def findK(factors):
 ##terms = [1 for i in range(k)] + [3,5]
 ##print '*'.join(map(str,terms)), '==', '+'.join(map(str,terms)), ': {} terms'.format(len(terms))
 
-# start script here
-t0 = time.clock()
-answer = 0
-MAX = 12000
-maxTupleLen = 13
-
-# initialize the list of smallest product-sum numbers
-minProdSumNum = [inf for i in range(MAX+1)]
-minProdSumNum[1] = 1 # 1 = 1
-
 # search space: lists of two or more factors > 1
 # idea: do lexicographically sorted tuples of length 2 up until (2,2)
 #                                          of length 3 up until (3,3,3)
@@ -96,31 +86,106 @@ minProdSumNum[1] = 1 # 1 = 1
 #   -> [2,2,3,3] -> [2,2,3,4] -> [2,2,4,4] -> [2,3,3,3] -> [2,3,3,4] ->
 #   [2,3,4,4] -> [2,4,4,4] -> [3,3,3,3] -> [3,3,3,4] -> [3,3,4,4] -> [3,4,4,4]
 #   -> [4,4,4,4]
+def modifiedCombinationsWithReplacement(k,maxK):
+    """Outputs the combinations of [1,...,k], taken k at a time with replacement,
+such that findK of the combination is at most maxK."""
+    elements = range(1,k+1)
+    ret = []
+    # can we generate them in an order so that if we get too big, we can
+    # hit a break statement and skip a lot of redundant work?
+    # if findK([2,2,2,2,2]) is too high, then will findK([2,2,2,2,3]) be too high too?
+    # a1*...*am - (a1+...+am) = numOnes. findK = m+numOnes
+    # a1*...*am - (a1+...+am) > maxK - m =>? a1*...*(am+1) - (a1+...+am+1) > maxK - m
+    # Rewriting the left side of the second inequality gives:
+    # a1*...*am - (a1+...+am) + a1*...*a_{m-1} - 1 > maxK - m
+    # (since a1*...*a_{m-1} > 1)
+    # so the answer is yes. similarly for replacing am with am+n for any n >= 0.
+    # 
+    x = [1] * k
+    mostRecentlyChanged = k-1
+    while x[0] < k:
+        xPrime = [a for a in x if a > 1]
+        if len(xPrime) > 1 and findK(xPrime) <= maxK:
+            ret.append(copy(x))
+            x[-1] += 1
+        elif len(xPrime) <= 1:
+            x[-1] += 1
+        else:
+            y = x[mostRecentlyChanged]
+            # walk backward until you find a term that is 2 below y
+            for i in range(mostRecentlyChanged-1,-1,-1):
+                if x[i] >= y-1: continue
+                else: break
+            # then increase that term by 1 and set all later terms equal to it
+            x[i] += 1
+            for j in range(i+1,k):
+                x[j] = x[i]
+        # check that no terms are above k
+        i = 1
+        while x[-i] > k and i < len(x):
+            i += 1
+            x[-i] += 1
+            for j in range(1,i):
+                x[-j] = x[-i]
+        mostRecentlyChanged = len(x)-i
+    return ret
+
+##print modifiedCombinationsWithReplacement(5,36)
+
+# start script here
+t0 = time.clock()
+answer = 0
+MAX = 12000
+maxTupleLen = 10
+
+# initialize the list of smallest product-sum numbers
+minProdSumNum = [inf for i in range(MAX+1)]
+minProdSumNum[1] = 1 # 1 = 1
+
 maxK = 1
+numIterations = 0
+numTooMany1s = 0
+numTooBig = 0
+numRepeated = 0
 for tupleLen in range(2,maxTupleLen+1):
-    for x in it.combinations_with_replacement(range(1,tupleLen+1),tupleLen):
+    for x in modifiedCombinationsWithReplacement(tupleLen,MAX):
+        numIterations += 1
+        
         # ignore if too many 1s
-        if x.count(1) >= tupleLen-1: continue
+        if x.count(1) >= tupleLen-1:
+            numTooMany1s += 1
+            continue
+        
         x = tuple([i for i in x if i > 1]) # drop the 1s
 
-        # ignore if we've seen it before
-        if len(x) < tupleLen and x.count(tupleLen) < 1: continue
+##        # ignore if we've seen it before
+##        if len(x) < tupleLen and x.count(tupleLen) < 1:
+##            numRepeated += 1
+##            continue
         
         k = findK(x)
-        if k > MAX: continue # ignore if k is too big
+        if k > MAX:
+            numTooBig += 1
+            continue # ignore if k is too big
+        
         maxK = max(k,maxK)
         p = sum(x) + k - len(x) # benchmarked against prod(x): seems faster
         minProdSumNum[k] = min(minProdSumNum[k],p)
 
 answer = sum(set(minProdSumNum[2:]))
 if answer == inf:
-    print 'maxK == {}'.format(maxK)
+##    print 'numIterations = {}'.format(numIterations)
+##    print 'numTooMany1s = {}, %TooMany1s = {}'.format(numTooMany1s,1.*numTooMany1s/numIterations)
+##    print 'numRepeated = {}, %Repeated = {}'.format(numRepeated,1.*numRepeated/numIterations)
+##    print 'numTooBig = {}, %TooBig = {}'.format(numTooBig,1.*numTooBig/numIterations)
+##    numGood = numIterations - numTooMany1s - numRepeated - numTooBig
+##    print 'numGood = {}, %Good = {}'.format(numGood,1.*numGood/numIterations)
     numInf = 0
     for i in range(2,maxK):
         if minProdSumNum[i] == inf:
             numInf += 1
-    print 'numInf == {}'.format(numInf)
-    print '%Inf == {}'.format(1.*numInf/(maxK-1))
+    print 'maxK = {}'.format(maxK)
+    print 'numInf = {}, %Inf = {}'.format(numInf,1.*numInf/(maxK-1))
 
 print 'answer: {}'.format(answer) # 
 print 'seconds elapsed: {}'.format(time.clock()-t0) # ~
