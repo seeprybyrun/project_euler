@@ -86,11 +86,8 @@ def findK(factors):
 #   -> [2,2,3,3] -> [2,2,3,4] -> [2,2,4,4] -> [2,3,3,3] -> [2,3,3,4] ->
 #   [2,3,4,4] -> [2,4,4,4] -> [3,3,3,3] -> [3,3,3,4] -> [3,3,4,4] -> [3,4,4,4]
 #   -> [4,4,4,4]
-def modifiedCombinationsWithReplacement(k,maxK):
-    """Outputs the combinations of [1,...,k], taken k at a time with replacement,
-such that findK of the combination is at most maxK."""
-    elements = range(1,k+1)
-    ret = []
+
+def findKForNTuplesUpTo(maxTupleLen,maxK):
     # can we generate them in an order so that if we get too big, we can
     # hit a break statement and skip a lot of redundant work?
     # if findK([2,2,2,2,2]) is too high, then will findK([2,2,2,2,3]) be too high too?
@@ -100,91 +97,112 @@ such that findK of the combination is at most maxK."""
     # a1*...*am - (a1+...+am) + a1*...*a_{m-1} - 1 > maxK - m
     # (since a1*...*a_{m-1} > 1)
     # so the answer is yes. similarly for replacing am with am+n for any n >= 0.
-    # 
-    x = [1] * k
-    mostRecentlyChanged = k-1
-    while x[0] < k:
-        xPrime = [a for a in x if a > 1]
-        if len(xPrime) > 1 and findK(xPrime) <= maxK:
-            ret.append(copy(x))
-            x[-1] += 1
-        elif len(xPrime) <= 1:
-            x[-1] += 1
-        else:
-            y = x[mostRecentlyChanged]
-            # walk backward until you find a term that is 2 below y
-            for i in range(mostRecentlyChanged-1,-1,-1):
-                if x[i] >= y-1: continue
-                else: break
-            # then increase that term by 1 and set all later terms equal to it
-            x[i] += 1
-            for j in range(i+1,k):
-                x[j] = x[i]
-        # check that no terms are above k
-        i = 1
-        while x[-i] > k and i < len(x):
-            i += 1
-            x[-i] += 1
-            for j in range(1,i):
-                x[-j] = x[-i]
-        mostRecentlyChanged = len(x)-i
-    return ret
+    #
+    minProdSumNum = [inf for i in range(maxK+1)]
+    minProdSumNum[1] = 1 # 1 = 1
+    numIterations = 0
+    numRepeated = 0
+    setOfRepeated = set()
+    setOfChecked = set()
+    kValues = dict()
+    for n in range(2,maxTupleLen+1):
+        
+        x = [1] * n
+        mostRecentlyChanged = n-1
+        while x[0] < n or set(x) == {n}:
+            numIterations += 1
+            
+            # remove the 1s from the front to form xPrime
+            last1Index = -1
+            if x[0] == 1:
+                last1Index = n - x[::-1].index(1) - 1
+            xPrime = tuple(x[last1Index+1:])
 
-##print modifiedCombinationsWithReplacement(5,36)
+            # if there were too many ones, iterate
+            if len(xPrime) <= 1:
+                x[-1] += 1
+                
+##            elif len(xPrime) < n and x[-1] < n:
+####                print n,xPrime
+####                assert xPrime in kValues
+##                k = kValues[xPrime]
+##                numRepeated += 1
+##                if k <= maxK:
+####                setOfRepeated.add(tuple(xPrime))
+##                    x[-1] += 1
+##                else:
+##                    y = x[mostRecentlyChanged]
+##                    # walk backward until you find a term that is 2 below y
+##                    for i in range(mostRecentlyChanged-1,-1,-1):
+##                        if x[i] >= y-1: continue
+##                        else: break
+##                    # then increase that term by 1 and set all later terms equal to it
+##                    x[i] += 1
+##                    for j in range(i+1,n):
+##                        x[j] = x[i]
+                        
+            else:
+                if xPrime not in kValues:
+                    k = findK(xPrime)
+                    kValues[xPrime] = k
+                    if k <= maxK:
+                        p = sum(xPrime) + k - len(xPrime)
+                        minProdSumNum[k] = min(p,minProdSumNum[k])
+                else:
+                    numRepeated += 1
+                    k = kValues[xPrime]
+##                setOfChecked.add(tuple(xPrime))
+                    
+                if k <= maxK:
+                    x[-1] += 1
+                else:
+                    y = x[mostRecentlyChanged]
+                    # walk backward until you find a term that is 2 below y
+                    for i in range(mostRecentlyChanged-1,-1,-1):
+                        if x[i] >= y-1: continue
+                        else: break
+                    # then increase that term by 1 and set all later terms equal to it
+                    x[i] += 1
+                    for j in range(i+1,n):
+                        x[j] = x[i]
+
+            # check that no terms are above k
+            i = 1
+            while x[-i] > n and i < len(x):
+                i += 1
+                x[-i] += 1
+                for j in range(1,i):
+                    x[-j] = x[-i]
+            mostRecentlyChanged = n-i
+
+    numReversals = 0
+    for i in range(2,maxK):
+        if minProdSumNum[i] > minProdSumNum[i+1]:
+            numReversals += 1
+    print 'numRepeated = {}'.format(numRepeated)
+    print 'numIterations = {}'.format(numIterations)
+    print 'redudancy = {}'.format(1.*numRepeated/numIterations)
+##    print len(setOfRepeated - setOfChecked) # things i claim i repeated but never actually checked
+##    print len(setOfChecked - setOfRepeated) # things i checked but never claimed i repeated (not as interesting)
+    return minProdSumNum
 
 # start script here
 t0 = time.clock()
 answer = 0
-MAX = 12000
-maxTupleLen = 10
+maxK = 12000
+maxTupleLen = 200
+minProdSumNum = findKForNTuplesUpTo(maxTupleLen,maxK)
 
-# initialize the list of smallest product-sum numbers
-minProdSumNum = [inf for i in range(MAX+1)]
-minProdSumNum[1] = 1 # 1 = 1
-
-maxK = 1
-numIterations = 0
-numTooMany1s = 0
-numTooBig = 0
-numRepeated = 0
-for tupleLen in range(2,maxTupleLen+1):
-    for x in modifiedCombinationsWithReplacement(tupleLen,MAX):
-        numIterations += 1
-        
-        # ignore if too many 1s
-        if x.count(1) >= tupleLen-1:
-            numTooMany1s += 1
-            continue
-        
-        x = tuple([i for i in x if i > 1]) # drop the 1s
-
-##        # ignore if we've seen it before
-##        if len(x) < tupleLen and x.count(tupleLen) < 1:
-##            numRepeated += 1
-##            continue
-        
-        k = findK(x)
-        if k > MAX:
-            numTooBig += 1
-            continue # ignore if k is too big
-        
-        maxK = max(k,maxK)
-        p = sum(x) + k - len(x) # benchmarked against prod(x): seems faster
-        minProdSumNum[k] = min(minProdSumNum[k],p)
+##for i,p in enumerate(minProdSumNum[:30]):
+##    print i,p
 
 answer = sum(set(minProdSumNum[2:]))
 if answer == inf:
-##    print 'numIterations = {}'.format(numIterations)
-##    print 'numTooMany1s = {}, %TooMany1s = {}'.format(numTooMany1s,1.*numTooMany1s/numIterations)
-##    print 'numRepeated = {}, %Repeated = {}'.format(numRepeated,1.*numRepeated/numIterations)
-##    print 'numTooBig = {}, %TooBig = {}'.format(numTooBig,1.*numTooBig/numIterations)
-##    numGood = numIterations - numTooMany1s - numRepeated - numTooBig
-##    print 'numGood = {}, %Good = {}'.format(numGood,1.*numGood/numIterations)
     numInf = 0
     for i in range(2,maxK):
         if minProdSumNum[i] == inf:
             numInf += 1
-    print 'maxK = {}'.format(maxK)
+##            print i
     print 'numInf = {}, %Inf = {}'.format(numInf,1.*numInf/(maxK-1))
 
 print 'answer: {}'.format(answer) # 
