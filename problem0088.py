@@ -106,12 +106,26 @@ def findKForNTuplesUpTo(maxTupleLen,maxK):
     setOfChecked = set()
     kValues = dict()
     for n in range(2,maxTupleLen+1):
+        if n % (maxTupleLen/10) == 0: print n
+##        # first, add an 'n' to end of all previously-checked tuples and recheck
+##        previousTuples = [x for x in kValues.keys() if len(x) < n-1]
+##        for x in previousTuples:
+##            numRepeated += 1
+##            if kValues[x] > maxK: # don't expand previously too-big tuples
+##                continue
+##            xPrime = tuple(list(x) + [n])
+##            numIterations += 1
+##            k = findK(xPrime)
+##            kValues[xPrime] = k
+##            if k <= maxK:
+##                p = sum(xPrime) + k - len(xPrime)
+##                minProdSumNum[k] = min(p,minProdSumNum[k])                   
+
+        # then, starting from [2,2,...,2], iterate as usual
         
         x = [1] * n
         mostRecentlyChanged = n-1
         while x[0] < n or set(x) == {n}:
-            numIterations += 1
-            
             # remove the 1s from the front to form xPrime
             last1Index = -1
             if x[0] == 1:
@@ -143,11 +157,16 @@ def findKForNTuplesUpTo(maxTupleLen,maxK):
                         
             else:
                 if xPrime not in kValues:
+                    numIterations += 1
                     k = findK(xPrime)
                     kValues[xPrime] = k
                     if k <= maxK:
                         p = sum(xPrime) + k - len(xPrime)
-                        minProdSumNum[k] = min(p,minProdSumNum[k])
+                        if p < minProdSumNum[k]:
+                            if minProdSumNum[k] < inf:
+                                print 'improved:',k,p,minProdSumNum[k]
+                            minProdSumNum[k] = p
+##                        minProdSumNum[k] = min(p,minProdSumNum[k])
                 else:
                     numRepeated += 1
                     k = kValues[xPrime]
@@ -179,9 +198,8 @@ def findKForNTuplesUpTo(maxTupleLen,maxK):
     for i in range(2,maxK):
         if minProdSumNum[i] > minProdSumNum[i+1]:
             numReversals += 1
-    print 'numRepeated = {}'.format(numRepeated)
-    print 'numIterations = {}'.format(numIterations)
-    print 'redudancy = {}'.format(1.*numRepeated/numIterations)
+    print 'number of findK computations = {}'.format(numIterations)
+    print 'number of hashtable accesses = {}'.format(numRepeated)
 ##    print len(setOfRepeated - setOfChecked) # things i claim i repeated but never actually checked
 ##    print len(setOfChecked - setOfRepeated) # things i checked but never claimed i repeated (not as interesting)
     return minProdSumNum
@@ -203,7 +221,7 @@ if answer == inf:
         if minProdSumNum[i] == inf:
             numInf += 1
 ##            print i
-    print 'numInf = {}, %Inf = {}'.format(numInf,1.*numInf/(maxK-1))
+    print 'numInf = {}, %Inf = {}'.format(numInf,100.*numInf/(maxK-1))
 
 print 'answer: {}'.format(answer) # 
 print 'seconds elapsed: {}'.format(time.clock()-t0) # ~
