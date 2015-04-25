@@ -85,64 +85,46 @@ def findKForNTuplesUpTo(n,maxK):
     # (since a1*...*a_{m-1} > 1)
     # so the answer is yes. similarly for replacing am with am+n for any n >= 0.
 
-    def updateX(x,i):
-        x[-i] += 1
-        for j in range(1,i):
-            x[-j] = x[-i]
-        return x
-
-    def doStuff(x,n,mostRecentlyChanged,last1Index):
+    def doStuff(x,n,last1Index,mostRecentlyChanged):
         # remove the 1s from the front to form xPrime
         xPrime = tuple(x[last1Index+1:])
-
-        # if there were too many ones, iterate
-        if len(xPrime) <= 1:
-            x[-1] += 1
                     
-        else:
-            if xPrime not in kValues:
-                k = findK(xPrime)
-                kValues[xPrime] = k
-                if k <= maxK:
-                    p = sum(xPrime) + k - len(xPrime)
-                    minProdSumNum[k] = min(minProdSumNum[k],p)
-            else:
-                k = kValues[xPrime]
-                
+        p = prod(xPrime)
+        if p <= 2*maxK:
+            numOnes = p - sum(xPrime)
+            k = len(xPrime) + numOnes
             if k <= maxK:
-                x[-1] += 1
-            else:
-                y = x[mostRecentlyChanged]
-                # walk backward until you find a term that is 2 below y
-                for i in range(mostRecentlyChanged-1,-1,-1):
-                    if x[i] >= y-1: continue
-                    else: break
-                # then increase that term by 1 and set all later terms equal to it
-                x[i] += 1
-                for j in range(i+1,n):
-                    x[j] = x[i]
+                minProdSumNum[k] = min(minProdSumNum[k],p)
+            
+        if p < 2*maxK:
+            x[-1] += 1
+            mostRecentlyChanged = n-1
+        else:
+            while prod(x) >= 2*maxK:
+                if mostRecentlyChanged == 0:
+                    x = [n] * n
+                    break
+                a = x[mostRecentlyChanged-1] + 1
+                for i in range(mostRecentlyChanged-1,len(x)):
+                    x[i] = a
+                mostRecentlyChanged -= 1
+                
+            while last1Index >= 0 and x[last1Index] > 1:
+                last1Index -= 1
 
-        # check that no terms are above k
-        i = 1
-        while x[-i] > n and i < len(x):
-            i += 1
-            x = updateX(x,i)
-        mostRecentlyChanged = n-i
+        return x,last1Index,mostRecentlyChanged
 
-        while last1Index >= 0 and x[last1Index] > 1:
-            last1Index -= 1
+    minProdSumNum = [2*k for k in range(maxK+1)]
 
-        return x,mostRecentlyChanged,last1Index
-
-    minProdSumNum = [inf for i in range(maxK+1)]
-    minProdSumNum[1] = 1 # 1 = 1
-    kValues = dict()
-
-    x = [1] * n
-    mostRecentlyChanged = n-1
-    last1Index = n-1
-    while x[0] < n or set(x) == {n}:
-        x,mostRecentlyChanged,last1Index = doStuff(x,n,mostRecentlyChanged,last1Index)
+    x = [1]*(n-2) + [2,2]
+    last1Index = n-3
+    numIters = 0
+    mostRecentlyChanged = n-2
+    while x[0] < n:
+##        numIters += 1
+##        if numIters % 1000 == 0:
+##            print numIters, x
+        x,last1Index,mostRecentlyChanged = doStuff(x,n,last1Index,mostRecentlyChanged)
 
     return minProdSumNum
 
@@ -150,8 +132,13 @@ def findKForNTuplesUpTo(n,maxK):
 t0 = time.clock()
 answer = 0
 maxK = 12000
-maxTupleLen = 2000
-minProdSumNum = findKForNTuplesUpTo(maxTupleLen,maxK)
+tupleLen = 15 # Guaranteed to complete since every composite number n
+                 # can be made into a sum-product number by taking
+                 # p*(n/p)*1^(n-n/p-p) == p + n/p + 1*(n-n/p-p),
+                 # where p is a prime factor of p. This gives
+                 # k == n-n/p-p + 2. Taking p >= 2 gives
+                 # k <= n-n/2-2 + 2 == n/2.
+minProdSumNum = findKForNTuplesUpTo(tupleLen,maxK)
 
 answer = sum(set(minProdSumNum[2:]))
 if answer == inf:
@@ -161,5 +148,5 @@ if answer == inf:
             numInf += 1
     print 'numInf = {}, %Inf = {}'.format(numInf,100.*numInf/(maxK-1))
 
-print 'answer: {}'.format(answer) # 
-print 'seconds elapsed: {}'.format(time.clock()-t0) # ~
+print 'answer: {}'.format(answer) # 7587457
+print 'seconds elapsed: {}'.format(time.clock()-t0) # ~0.825s
