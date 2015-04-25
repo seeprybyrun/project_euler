@@ -105,8 +105,13 @@ def findKForNTuplesUpTo(maxTupleLen,maxK):
     setOfRepeated = set()
     setOfChecked = set()
     kValues = dict()
+    tLast = t0
     for n in range(2,maxTupleLen+1):
-        if n % (maxTupleLen/10) == 0: print n
+        if n % 10 == 0:
+            tNow = time.clock()
+            print n,tNow-tLast,tNow-t0
+            tLast = tNow
+            
 ##        # first, add an 'n' to end of all previously-checked tuples and recheck
 ##        previousTuples = [x for x in kValues.keys() if len(x) < n-1]
 ##        for x in previousTuples:
@@ -163,8 +168,8 @@ def findKForNTuplesUpTo(maxTupleLen,maxK):
                     if k <= maxK:
                         p = sum(xPrime) + k - len(xPrime)
                         if p < minProdSumNum[k]:
-                            if minProdSumNum[k] < inf:
-                                print 'improved:',k,p,minProdSumNum[k]
+##                            if minProdSumNum[k] < inf:
+##                                print 'improved:',k,p,minProdSumNum[k]
                             minProdSumNum[k] = p
 ##                        minProdSumNum[k] = min(p,minProdSumNum[k])
                 else:
@@ -208,7 +213,7 @@ def findKForNTuplesUpTo(maxTupleLen,maxK):
 t0 = time.clock()
 answer = 0
 maxK = 12000
-maxTupleLen = 200
+maxTupleLen = 220
 minProdSumNum = findKForNTuplesUpTo(maxTupleLen,maxK)
 
 ##for i,p in enumerate(minProdSumNum[:30]):
