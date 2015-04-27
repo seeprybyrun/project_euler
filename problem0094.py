@@ -117,15 +117,38 @@ t0 = time.clock()
 # integral) and count the ones that turn out to make almost-equilateral
 # triangles
 
-def generateTriple(m,n,k):
-    return (k*(m**2-n**2),k*(2*m*n),k*(m**2+n**2))
+MAX_PERIM = 10**9
+mBound = int(ceil( (sqrt(2*MAX_PERIM + 1) - 1)/2 ))
 
-def perimeterOfTriple(m,n,k):
-    # a = k*(m**2 - n**2)
-    # b = k*(2*m*n)
-    # c = k*(m**2 + n**2)
-    # a + b + c == 2*k*m*(m+n)
-    return 2*k*m*(m+n)
+n = 1
+
+flag = 0
+
+for m in range(2,mBound+1):
+    if 2*m*(m+n) >= MAX_PERIM: break
+    if (m - n) % 2 == 0 or gcd(m,n) > 1: continue
+
+    changed = False
+    
+    a = m**2 - n**2
+    b = 2*m*n
+    c = m**2 + n**2 # hypotenuse
+    
+    if abs(2*b-c) == 1:
+        #print (c,c,2*b), (m,n)
+        answer += 2*(b+c)
+        changed = True
+    elif abs(2*a-c) == 1:
+        #print (c,c,2*a), (m,n)
+        answer += 2*(a+c)
+        changed = True
+
+    if changed:
+        if flag == 0:
+            flag = 1
+        elif flag == 1:
+            n = m
+            flag = 0
 
 print 'answer: {}'.format(answer) # 
 print 'seconds elapsed: {}'.format(time.clock()-t0) # ~
