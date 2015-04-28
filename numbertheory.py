@@ -4,24 +4,19 @@ from math import log
 from operator import mul
 
 memo = {}
+divisorsMemo = {}
 
-def divisors(n,sort=False):
-    index = 'divisors:{0},{1}'.format(n,sort)
-    if index in memo:
-        return memo[index]
-    
-    divs = []
-    upperBound = floor(sqrt(n))+1
-    for i in range(1,int(upperBound)):
-        if n % i == 0:
-            divs.append(i)
-            if n/i != i:
-                divs.append(n/i)
-    if sort:
-        divs.sort()
-        
-    memo[index] = divs
-    return memo[index]
+def divisors(n):
+    if n not in divisorsMemo:
+        divs = []
+        upperBound = int(floor(sqrt(n)))+1
+        for i in range(1,upperBound):
+            if n % i == 0:
+                divs.append(i)
+                if n/i != i:
+                    divs.append(n/i)
+        divisorsMemo[n] = divs
+    return divisorsMemo[n]
 	
 def sumOfDivisors(n):
     index = 'sumOfDivisors:{0}'.format(n)
