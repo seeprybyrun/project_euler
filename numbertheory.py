@@ -4,12 +4,17 @@ from math import log
 from operator import mul
 
 memo = {}
+sumOfDivisorsMemo = {}
 divisorsMemo = {}
+genPent = [1]
 
 def divisors(n):
+    # naive method
     if n not in divisorsMemo:
-        divs = []
         upperBound = int(floor(sqrt(n)))+1
+##        divs = [i for i in range(1,upperBound) if n % i == 0]
+##        divs.extend([n/i for i in divs if i*i != n])
+        divs = []
         for i in range(1,upperBound):
             if n % i == 0:
                 divs.append(i)
@@ -17,14 +22,59 @@ def divisors(n):
                     divs.append(n/i)
         divisorsMemo[n] = divs
     return divisorsMemo[n]
-	
+
 def sumOfDivisors(n):
-    index = 'sumOfDivisors:{0}'.format(n)
-    if index in memo:
-        return memo[index]
-    
-    memo[index] = sum(divisors(n))
-    return memo[index]
+
+##    def extendGenPent(minBeforeStopping):
+##        L = len(genPent)
+##        if L % 2 == 0:
+##            i = -L/2
+##        else:
+##            i = L/2 + 1
+##        while True:
+##            i = -i
+##            if i > 0:
+##                i += 1
+##            p = (3*i**2 - i)/2
+##            genPent.append(p)
+##            if p >= minBeforeStopping:
+##                break
+
+##    # this method is slower than having a hash
+##    def extendSumOfDivisorsMemo(upper):
+##        L = len(sumOfDivisorsMemo)
+##        if L <= upper:
+##            sumOfDivisorsMemo.extend([-1] * (upper-L+1))
+##
+##    if len(sumOfDivisorsMemo) <= n:
+##        extendSumOfDivisorsMemo(n)
+
+    if n not in sumOfDivisorsMemo:
+        
+        # naive method
+        sumOfDivisorsMemo[n] = sum(divisors(n))
+        
+##        # using Euler's recursive method... this is slower than naive!
+##        sod = 0
+##        if genPent[-1] < n: # genPent[-1] == max(genPent) because it's sorted
+##            extendGenPent(n)
+##        for i,p in enumerate(genPent):
+##            if p > n: break
+##            sign = 1 if (i%4<2) else -1
+##            if p == n:
+##                sod += sign * n
+##                #print '+' if sign == 1 else '-', n,
+##            else:
+##                t = sumOfDivisors(n-p)
+##                sod += sign * t
+##                #print '+' if sign == 1 else '-', t,
+##        sumOfDivisorsMemo[n] = sod
+##        #print ''
+        
+    return sumOfDivisorsMemo[n]
+
+assert sumOfDivisors(6) == 6*2
+assert sumOfDivisors(28) == 28*2
 
 def sumOfProperDivisors(n):
     return sumOfDivisors(n) - n

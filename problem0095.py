@@ -68,11 +68,17 @@ chainComputed[1] = True
 tLast = t0
 
 for n in range(2,MAX):
-
+    
     if n % (MAX/100) == 0:
         tNew = time.clock()
         print n,tNew-tLast,tNew-t0
         tLast = tNew
+
+    nt.sumOfDivisors(n)
+
+print 'computed sums of divisors for n = 2, ...,', MAX-1
+
+for n in range(2,MAX):
     
     if chainComputed[n]: continue
     
@@ -103,5 +109,5 @@ for n in range(2,MAX):
         answer = min(chain)
         longestChainLength = len(chain)
 
-print 'answer: {}'.format(answer) # 
-print 'seconds elapsed: {}'.format(time.clock()-t0) # ~ 
+print 'answer: {}'.format(answer) # 14316
+print 'seconds elapsed: {}'.format(time.clock()-t0) # ~ 113 s
