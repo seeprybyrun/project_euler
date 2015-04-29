@@ -9,7 +9,7 @@ divisorsMemo = {}
 genPent = [1]
 
 def divisors(n):
-    # naive method
+    # trial division
     if n not in divisorsMemo:
         upperBound = int(floor(sqrt(n)))+1
 ##        divs = [i for i in range(1,upperBound) if n % i == 0]
@@ -69,7 +69,7 @@ def sumOfDivisors(n):
 ##                sod += sign * t
 ##                #print '+' if sign == 1 else '-', t,
 ##        sumOfDivisorsMemo[n] = sod
-##        #print ''
+##        #print ''           
         
     return sumOfDivisorsMemo[n]
 
